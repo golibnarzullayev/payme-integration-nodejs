@@ -1,0 +1,29 @@
+{
+	"name": "payme-integration-nodejs",
+	"version": "1.0.0",
+	"description": "Payme integration nodejs",
+	"main": "server.js",
+	"scripts": {
+		"start": "node server",
+		"dev": "nodemon server"
+	},
+	"keywords": [
+		"payme",
+		"nodejs",
+		"expressjs",
+		"mongoose",
+		"mongodb"
+	],
+	"author": "G'olib Narzullayev",
+	"license": "ISC",
+	"dependencies": {
+		"base-64": "^1.0.0",
+		"cors": "^2.8.5",
+		"dotenv": "^16.3.1",
+		"express": "^4.18.2",
+		"mongoose": "^7.6.3"
+	},
+	"devDependencies": {
+		"nodemon": "^3.0.1"
+	}
+}
