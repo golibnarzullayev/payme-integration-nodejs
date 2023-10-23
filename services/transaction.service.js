@@ -71,7 +71,6 @@ class TransactionService {
 		await this.checkPerformTransaction(params, id);
 
 		let transaction = await this.transactionRepo.getById(params.id);
-		console.log(transaction);
 		if (transaction) {
 			if (transaction.state !== TransactionState.Pending) {
 				throw new TransactionError(PaymeError.CantDoOperation, id);
