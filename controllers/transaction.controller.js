@@ -35,6 +35,11 @@ class TransactionController {
 					const result = await transactionService.cancelTransaction(params, id);
 					return res.json({ result, id });
 				}
+				case PaymeMethod.GetStatement: {
+					const transactions = await transactionService.getStatement(params);
+
+					return res.json({ result: { transactions: transactions } });
+				}
 			}
 		} catch (error) {
 			next(error);

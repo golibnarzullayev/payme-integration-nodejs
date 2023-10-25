@@ -7,11 +7,7 @@ const transactionSchema = new Schema(
 			type: String,
 			required: true,
 		},
-		user_id: {
-			type: String,
-			required: true,
-		},
-		product_id: {
+		order_id: {
 			type: String,
 			required: true,
 		},

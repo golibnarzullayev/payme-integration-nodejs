@@ -1,4 +1,5 @@
-const { productRepo, transactionRepo, userRepo } = require('../repositories');
+const { isValidObjectId } = require('mongoose');
+const { transactionRepo, orderRepo } = require('../repositories');
 
 const {
 	PaymeError,
@@ -7,38 +8,39 @@ const {
 } = require('../enums/transaction.enum');
 
 const TransactionError = require('../errors/transaction.error');
+const { OrderStatus } = require('../enums/order.enum');
 
 class TransactionService {
-	constructor(transactionRepo, userRepo, productRepo) {
+	constructor(transactionRepo, orderRepo) {
 		this.transactionRepo = transactionRepo;
-		this.userRepo = userRepo;
-		this.productRepo = productRepo;
+		this.orderRepo = orderRepo;
 	}
 
 	async checkPerformTransaction(params, id) {
 		const {
-			account: { user_id: userId, product_id: productId },
+			account: { order_id: orderId },
 		} = params;
 
 		let { amount } = params;
 
 		amount = Math.floor(amount / 100);
 
-		const user = await this.userRepo.getById(userId);
-		if (!user) {
-			throw new TransactionError(PaymeError.UserNotFound, id, PaymeData.UserId);
-		}
-
-		const product = await this.productRepo.getById(productId);
-		if (!product) {
+		if (!isValidObjectId(orderId))
 			throw new TransactionError(
-				PaymeError.ProductNotFound,
+				PaymeError.OrderNotFound,
 				id,
-				PaymeData.ProductId,
+				PaymeData.OrderId,
 			);
-		}
 
-		if (amount !== product.price) {
+		const order = await this.orderRepo.getById(orderId);
+		if (!order)
+			throw new TransactionError(
+				PaymeError.OrderNotFound,
+				id,
+				PaymeData.OrderId,
+			);
+
+		if (amount !== order.totalPrice) {
 			throw new TransactionError(PaymeError.InvalidAmount, id);
 		}
 	}
@@ -61,9 +63,16 @@ class TransactionService {
 
 	async createTransaction(params, id) {
 		const {
-			account: { user_id: userId, product_id: productId },
+			account: { order_id: orderId },
 			time,
 		} = params;
+
+		if (!isValidObjectId(orderId))
+			throw new TransactionError(
+				PaymeError.OrderNotFound,
+				id,
+				PaymeData.OrderId,
+			);
 
 		let { amount } = params;
 		amount = Math.floor(amount / 100);
@@ -87,6 +96,10 @@ class TransactionService {
 					reason: 4,
 				});
 
+				await this.orderRepo.updateById(transaction.order_id.toString(), {
+					status: OrderStatus.Canceled,
+				});
+
 				throw new TransactionError(PaymeError.CantDoOperation, id);
 			}
 
@@ -98,8 +111,7 @@ class TransactionService {
 		}
 
 		transaction = await this.transactionRepo.getByFilter({
-			user_id: userId,
-			product_id: productId,
+			order_id: orderId,
 		});
 
 		if (transaction) {
@@ -116,8 +128,7 @@ class TransactionService {
 			id: params.id,
 			state: TransactionState.Pending,
 			amount: amount,
-			user_id: userId,
-			product_id: productId,
+			order_id: orderId,
 			create_time: time,
 		});
 
@@ -157,12 +168,20 @@ class TransactionService {
 				cancel_time: currentTime,
 			});
 
+			await this.orderRepo.updateById(transaction.order_id, {
+				status: OrderStatus.Canceled,
+			});
+
 			throw new TransactionError(PaymeError.CantDoOperation, id);
 		}
 
 		await this.transactionRepo.updateById(transaction._id.toString(), {
 			state: TransactionState.Paid,
 			perform_time: currentTime,
+		});
+
+		await this.orderRepo.updateById(transaction.order_id, {
+			status: OrderStatus.Paid,
 		});
 
 		return {
@@ -186,6 +205,10 @@ class TransactionService {
 				reason: params.reason,
 				cancel_time: currentTime,
 			});
+
+			await this.orderRepo.updateById(transaction.order_id, {
+				status: OrderStatus.Canceled,
+			});
 		}
 
 		return {
@@ -194,6 +217,12 @@ class TransactionService {
 			state: -Math.abs(transaction.state),
 		};
 	}
+
+	async getStatement(params) {
+		const { from, to } = params;
+
+		return this.transactionRepo.getByDateFilter(from, to);
+	}
 }
 
-module.exports = new TransactionService(transactionRepo, userRepo, productRepo);
+module.exports = new TransactionService(transactionRepo, orderRepo);

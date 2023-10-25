@@ -20,6 +20,10 @@ class TransactionRepo {
 	async updateById(id, update) {
 		return this.model.findByIdAndUpdate(id, update);
 	}
+
+	async getByDateFilter(from, to) {
+		return this.model.find({ create_time: { $gte: from, $lte: to } });
+	}
 }
 
 module.exports = new TransactionRepo(transactionModel);

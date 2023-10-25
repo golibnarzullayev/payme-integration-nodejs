@@ -17,22 +17,13 @@ exports.PaymeError = {
 			en: 'Invalid amount',
 		},
 	},
-	UserNotFound: {
-		name: 'UserNotFound',
+	OrderNotFound: {
+		name: 'OrderNotFound',
 		code: -31050,
 		message: {
 			uz: 'Biz sizning hisobingizni topolmadik',
 			ru: 'Мы не смогли найти ваш аккаунт',
 			en: "We couldn't find your account",
-		},
-	},
-	ProductNotFound: {
-		name: 'ProductNotFound',
-		code: -31050,
-		message: {
-			uz: 'Biz mahsulotni topolmadik.',
-			ru: 'Мы не смогли найти товар.',
-			en: 'We could not find the product.',
 		},
 	},
 	CantDoOperation: {
@@ -83,8 +74,7 @@ exports.PaymeError = {
 };
 
 exports.PaymeData = {
-	UserId: 'user_id',
-	ProductId: 'product_id',
+	OrderId: 'order_id',
 };
 
 exports.TransactionState = {
