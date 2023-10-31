@@ -1,14 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 
-const environments = require('./config/environments');
+const { PORT } = require('./config/environments');
 const routes = require('./routes');
 const connectDB = require('./config/database');
 const errorHandler = require('./middlewares/error-handler.middleware');
 
 const app = express();
-
-const PORT = environments.PORT;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

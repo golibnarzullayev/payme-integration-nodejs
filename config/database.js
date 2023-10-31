@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 
-const environments = require('./environments');
-
-const MONGO_URI = environments.MONGO_URI;
+const { MONGO_URI } = require('./environments');
 
 const connectDB = async () => {
 	try {

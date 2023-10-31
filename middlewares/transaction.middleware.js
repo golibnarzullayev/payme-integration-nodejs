@@ -1,11 +1,9 @@
 const base64 = require('base-64');
 
 const { PaymeError } = require('../enums/transaction.enum');
-const environments = require('../config/environments');
+const { PAYME_CHECKOUT_KEY } = require('../config/environments');
 
 const TransactionError = require('../errors/transaction.error');
-
-const PAYME_CHECKOUT_KEY = environments.PAYME_CHECKOUT_KEY;
 
 exports.paymeCheckToken = (req, res, next) => {
 	const { id } = req.body;
